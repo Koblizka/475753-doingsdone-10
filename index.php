@@ -25,8 +25,6 @@ $user_id = 1;
 $connection_db = connect_db($data_base);
 // Получаем список проектов для пользователя по id
 $projects = get_user_projects($user_id, $connection_db);
-// Получаем список задач
-$tasks = get_all_tasks($connection_db);
 
 // Получаем списко задач для конкретного проекта по URI
 if (isset($_GET["project_id"])){
@@ -44,7 +42,10 @@ if (isset($_GET["project_id"])){
 
     // Получаем список задач для конкретного проекта
     $tasks = get_user_tasks_by_project_id($user_id, $project_id, $connection_db);
+} else {
+    $tasks = get_all_tasks($connection_db); // Получаем список всех задач
 }
+
 
 // Шаблон списка задач
 $page = include_template("index.php", [

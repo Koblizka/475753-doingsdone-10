@@ -7,7 +7,7 @@
  *
  * @return int $num Количество заданий в категории
  */
-function task_count($task, $project_name)
+function task_count($tasks, $project_name)
 {
     $num = 0;
 
@@ -26,14 +26,14 @@ function task_count($task, $project_name)
  *
  * @param  str $task Строка содержащая дату
  *
- * @return  str Возвращает строку "task--important" или ""
+ * @return  bool Возвращает true | false
  */
 function important_task($task)
 {
     if ($task === NULL) {
-        return "Нет";
+        return false;
     } elseif ($task !== NULL && strtotime($task) - time() <= SEC_IN_A_DAY) {
-        return "task--important";
+        return true;
     }
 
     return "";
@@ -44,11 +44,11 @@ function important_task($task)
  *
  * @param  str $task Дата
  *
- * @return str Дата|Нет отсутствии даты или неверном значении
+ * @return str Дата|null отсутствии даты или неверном значении
  */
 function get_date($task)
 {
-    return $task ? date("d.m.Y", strtotime($task)) : "Нет";
+    return $task ? date("d.m.Y", strtotime($task)) : null;
 }
 
 /**
@@ -67,13 +67,10 @@ function get_user_projects(int $user_id, mysqli $connection_db)
     LEFT JOIN task t
     ON t.project_id = p.id WHERE p.user_id = $user_id
     GROUP BY p.name, p.id ORDER BY task_count DESC";
-    // Запрос на список проектов
-    $result = mysqli_query($connection_db, $sql);
 
+    // Запрос на список проектов
     // Проверка на корректность запроса
-    if (!$result) {
-    return [];
-    }
+    $result = mysqli_query($connection_db, $sql) ?: [];
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
@@ -95,13 +92,11 @@ function get_user_projects_by_id(int $user_id, int $project_id, mysqli $connecti
     LEFT JOIN task t
     ON t.project_id = p.id WHERE p.user_id = $user_id && p.id = $project_id
     GROUP BY p.name, p.id ORDER BY task_count DESC";
-    // Запрос на список проектов
-    $result = mysqli_query($connection_db, $sql);
 
+    // Запрос на список проектов
     // Проверка на корректность запроса
-    if (!$result) {
-    return [];
-    }
+    $result = mysqli_query($connection_db, $sql) ?: [];
+
 
     return mysqli_fetch_assoc($result);
 }
@@ -119,12 +114,8 @@ function get_all_tasks(mysqli $connection_db)
     $sql = "SELECT name AS task_name, deadline AS complete_date, complete_status AS is_completed, project_id AS category
             FROM task";
 
-    $result = mysqli_query($connection_db, $sql);
-
     // Проверка на корректность запроса
-    if (!$result) {
-        return [];
-    }
+    $result = mysqli_query($connection_db, $sql) ?: [];
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
@@ -145,12 +136,9 @@ function get_user_tasks_by_project_id(int $user_id, int $project_id, mysqli $con
             JOIN user u
             ON u.id = t.user_id WHERE t.user_id = $user_id && t.project_id = $project_id";
 
-    $result = mysqli_query($connection_db, $sql);
-
     // Проверка на корректность запроса
-    if (!$result) {
-        return [];
-    }
+    $result = mysqli_query($connection_db, $sql) ?: [];
+
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }

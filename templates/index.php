@@ -25,7 +25,7 @@
     <?php if($show_complete_tasks || $task_data["is_completed"] === "0"):?>
     <tr class="tasks__item task
     <?= $task_data["is_completed"] === "1" ? "task--completed" : "" ?>
-    <?=important_task($task_data["complete_date"])?>">
+    <?=important_task($task_data["complete_date"]) ? "task--important" : "Нет" ?>">
         <td class="task__select">
             <label class="checkbox task__checkbox">
                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1" <?= $task_data["is_completed"] === "1" ? "checked" : "" ?>>
@@ -37,7 +37,7 @@
             <a class="download-link" href="#">Home.psd</a>
         </td>
 
-        <td class="task__date <?=important_task($task_data["complete_date"])?>"><?=get_date($task_data["complete_date"])?></td>
+        <td class="task__date <?=important_task($task_data["complete_date"]) ? "task--important" : "Нет" ?>"><?=get_date($task_data["complete_date"])?></td>
     </tr>
     <?php endif; ?>
     <?php endforeach; ?>
