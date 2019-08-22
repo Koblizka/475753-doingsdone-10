@@ -52,6 +52,25 @@ function get_date($task)
 }
 
 /**
+ * Получаем список всех проектов
+ *
+ * @param  mysqli $connection_db Подключение к БД
+ *
+ * @return arr Ассоциативный массив с проектами или пустой массив
+ */
+function get_all_projects(mysqli $connection_db)
+{
+    // Формируем запрос на список всех проектов сортированный по id 
+    $sql = "SELECT name AS project, id AS project_id FROM project
+            ORDER BY project_id ASC";
+
+    // Проверка на корректность запроса
+    $result = mysqli_query($connection_db, $sql) ?: [];
+    
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+/**
  * Возвращает список проектов из базы данных в виде ассоциативного массива
  *
  * @param  int $user_id
