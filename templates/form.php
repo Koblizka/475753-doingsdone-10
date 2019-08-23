@@ -1,6 +1,6 @@
 <h2 class="content__main-heading">Добавление задачи</h2>
 
-<form class="form"  action="index.html" method="post" autocomplete="off">
+<form class="form"  action="add.php" method="post" autocomplete="off">
     <div class="form__row">
         <label class="form__label" for="name">Название <sup>*</sup></label>
         <input class="form__input" type="text" name="name" id="name" value="" placeholder="Введите название">
@@ -31,6 +31,6 @@
     </div>
 
     <div class="form__row form__row--controls">
-        <input class="button" type="submit" name="" value="Добавить">
+        <input class="button" type="submit" name="submit" value="Добавить">
     </div>
 </form>
