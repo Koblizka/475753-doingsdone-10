@@ -3,7 +3,8 @@
 <form class="form"  action="add.php" method="post" autocomplete="off">
     <div class="form__row">
         <label class="form__label" for="name">Название <sup>*</sup></label>
-        <input class="form__input" type="text" name="name" id="name" value="" placeholder="Введите название">
+        <?php $error = isset($errors["name"]) ? "form__input--error" : "";?>
+        <input class="form__input <?=$error;?>" type="text" name="name" id="name" value="<?=get_post_val("name");?>" placeholder="Введите название">
     </div>
 
     <div class="form__row">
@@ -17,7 +18,7 @@
 
     <div class="form__row">
         <label class="form__label" for="date">Дата выполнения</label>
-        <input class="form__input form__input--date" type="text" name="date" id="date" value="" placeholder="Введите дату в формате ГГГГ-ММ-ДД">
+        <input class="form__input form__input--date" type="text" name="date" id="date" value="<?=get_post_val("date");?>" placeholder="Введите дату в формате ГГГГ-ММ-ДД">
     </div>
 
     <div class="form__row">

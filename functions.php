@@ -161,3 +161,38 @@ function get_user_tasks_by_project_id(int $user_id, int $project_id, mysqli $con
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
+
+/**
+ * Сохраняет значения подставленные пользователем в форме
+ *
+ * @param  str $name Введённое значение пользователя в форме
+ *
+ * @return str Значение поля из формы или пустая строка если такого нет
+ */
+function get_post_val(string $name)
+{
+    return $_POST[$name] ?? "";
+}
+
+function validate_name($name)
+{
+    $task_name = $_POST[$name];
+    
+    if (empty($task_name)) {
+        return "Это поле должно быть заполнено";
+    }
+
+    return null;
+}
+
+function validate_project(string $project, array $projects)
+{
+    $project_name = $_POST[$project];
+    $allowed_list = array_column($projects, "name");
+
+    if (!in_array($project, $allowed_list)){
+        return "Выберан не существующий проект";
+    }
+
+    return null;
+}
