@@ -32,11 +32,11 @@
                 <span class="checkbox__text"><?=htmlspecialchars($task_data["task_name"])?></span>
             </label>
         </td>
-
         <td class="task__file">
-            <a class="download-link" href="#">Home.psd</a>
+        <?php if ($task_data["file"]): ?>
+            <a class="download-link" href="<?="/uploads/" . $task_data["file"]?>"><?=$task_data["file"]?></a>
+        <?php endif; ?>
         </td>
-
         <td class="task__date <?=important_task($task_data["complete_date"]) ? "task--important" : "Нет" ?>"><?=get_date($task_data["complete_date"])?></td>
     </tr>
     <?php endif; ?>

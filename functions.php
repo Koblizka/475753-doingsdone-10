@@ -9,6 +9,7 @@
  */
 function task_count($tasks, $project_name)
 {
+    // Счётчик
     $num = 0;
 
     foreach ($task as $task_data) {
@@ -22,7 +23,7 @@ function task_count($tasks, $project_name)
 
 /**
  * функция принимает строку содержащую дату заврешение таска
- * если скоро дедлайн(менее или сутки), то добавляет css класс важности задачи
+ * если скоро дедлайн(менее или сутки)
  *
  * @param  str $task Строка содержащая дату
  *
@@ -61,8 +62,8 @@ function get_date($task)
 function get_all_projects(mysqli $connection_db)
 {
     // Формируем запрос на список всех проектов сортированный по id 
-    $sql = "SELECT name AS project, id AS project_id FROM project
-            ORDER BY project_id ASC";
+    $sql = "SELECT name AS project, id FROM project
+            ORDER BY id ASC";
 
     // Проверка на корректность запроса
     $result = mysqli_query($connection_db, $sql) ?: [];
@@ -130,7 +131,7 @@ function get_user_projects_by_id(int $user_id, int $project_id, mysqli $connecti
 function get_all_tasks(mysqli $connection_db)
 {
     // Получаем списк задач
-    $sql = "SELECT name AS task_name, deadline AS complete_date, complete_status AS is_completed, project_id AS category
+    $sql = "SELECT name AS task_name, deadline AS complete_date, complete_status AS is_completed, project_id AS category, user_file AS file
             FROM task";
 
     // Проверка на корректность запроса
@@ -150,7 +151,7 @@ function get_all_tasks(mysqli $connection_db)
 function get_user_tasks_by_project_id(int $user_id, int $project_id, mysqli $connection_db)
 {
     // Получаем списк задач
-    $sql = "SELECT t.name AS task_name, t.deadline AS complete_date, t.complete_status AS is_completed, t.project_id AS category
+    $sql = "SELECT t.name AS task_name, t.deadline AS complete_date, t.complete_status AS is_completed, t.project_id AS category, t.user_file AS file
             FROM task t
             JOIN user u
             ON u.id = t.user_id WHERE t.user_id = $user_id && t.project_id = $project_id";
@@ -174,24 +175,70 @@ function get_post_val(string $name)
     return $_POST[$name] ?? "";
 }
 
-function validate_name($name)
+/**
+ * Валидирует поле имени/названия задания на пустую строку или превышение длины
+ *
+ * @param  string $name Название задания
+ *
+ * @return string|null Если не прошло валидацию или всё хорошо
+ */
+function validate_name(string $name)
 {
+    // Название задания
     $task_name = $_POST[$name];
     
     if (empty($task_name)) {
         return "Это поле должно быть заполнено";
     }
 
+    // Отсебя добавил ограничение длины названия задачи
+    if (strlen($task_name) >= 90) {
+        return "Слишком длинное имя задачи";
+    }
+
     return null;
 }
 
+/**
+ * Валидирует поле выбора проекта. Есть ли такой созданный проект
+ *
+ * @param  string $project Выбранный проект пользователя 
+ * @param  array $projects Список всех проектов
+ *
+ * @return string|null 
+ */
 function validate_project(string $project, array $projects)
 {
-    $project_name = $_POST[$project];
-    $allowed_list = array_column($projects, "name");
+    // Список разрешённых проектов
+    $allowed_list = array_column($projects, "id");
 
+    // Проверяем есть ли выбранный проект пользователя проект в разрешённом списке
     if (!in_array($project, $allowed_list)){
-        return "Выберан не существующий проект";
+        return "Был выбран не существующий проект";
+    }
+
+    return null;
+}
+
+/**
+ * Валидация даты на корректность формата и самой даты
+ *
+ * @param  string $date дата
+ *
+ * @return string|null Сообщение об ошибке или всё хорошо - null
+ */
+function validate_date(string $date)
+{
+    // Текущая дата
+    $current_date = time() - SEC_IN_A_DAY;
+    // Проверяем валидность формата даты
+    if (!is_date_valid($date)){
+        return "Указан не верный формат даты. Должен быть ГГГГ-ММ-ДД";
+    }
+
+    // Проверяем валидность указаной даты
+    if (strtotime($date) <= $current_date){
+        return "Указана не верная дата. Дата должна быть больше или равно текущей";
     }
 
     return null;
