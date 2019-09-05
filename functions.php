@@ -193,7 +193,7 @@ function validate_name(string $name)
 
     // Отсебя добавил ограничение длины названия задачи
     if (strlen($task_name) >= 90) {
-        return "Слишком длинное имя задачи";
+        return "Слишком длинное имя";
     }
 
     return null;
@@ -239,6 +239,78 @@ function validate_date(string $date)
     // Проверяем валидность указаной даты
     if (strtotime($date) <= $current_date){
         return "Указана не верная дата. Дата должна быть больше или равно текущей";
+    }
+
+    return null;
+}
+
+/**
+ * Валидация Имейла пользователяю Должен быть уникален
+ *
+ * @param  string $email
+ * @param  mysqli $connection_db
+ *
+ * @return string|null Текст ошибки или null если всё ок
+ */
+function validate_email(string $email, mysqli $connection_db)
+{
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return "Имейл указан не верно";
+    } else {
+        $email = mysqli_real_escape_string($connection_db, $email);
+        $sql = "SELECT id FROM user WHERE email = '$email'";
+        $result = mysqli_query($connection_db, $sql);
+    
+        if (mysqli_num_rows($result) > 0) {
+            return "Такой пользователь уже зарегистрирован";
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Валидируем Логин пользователя. Он не должен быть больше 20 исмволов и должен быть уникален
+ *
+ * @param  string $login
+ * @param  mysqli $connection_db
+ *
+ * @return string|null Текст ошибки или всё ок null
+ */
+function validate_login(string $login, mysqli $connection_db)
+{
+
+    if (empty($login)) {
+        return "Это поле должно быть заполнено";
+    } elseif (strlen($login) >= 20) {
+        return "Слишком длинное имя";
+    } else {
+        $login = mysqli_real_escape_string($connection_db, $login);
+        $sql = "SELECT id FROM user WHERE name = '$login'";
+        $result = mysqli_query($connection_db, $sql);
+    
+        if (mysqli_num_rows($result) > 0) {
+            return "Такой пользователь уже зарегистрирован";
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Валидация пароля. Не менее 6 символов
+ *
+ * @param  string $password
+ *
+ * @return string|null Текст ошибки или всё ок null
+ */
+function validate_password(string $password)
+{
+    if (empty($password)) {
+        return "Необходимо ввести пароль";
+    } elseif (strlen($password) < 6) {
+        return "Слишком короткий пароль";
     }
 
     return null;
