@@ -20,3 +20,5 @@ $project_id = null;
 $project = null;
 // Юзер id
 $user_id = 1;
+// Массив для хранения ошибок валидации
+$errors = [];

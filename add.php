@@ -8,8 +8,7 @@ require_once "./aside_projects.php";
 
 // Получаем список всех проектов для селекта в форме
 $all_projects = get_all_projects($connection_db);
-// Массив для хранения ошибок валидации
-$errors = [];
+
 
 // Проверка отправки формы
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
