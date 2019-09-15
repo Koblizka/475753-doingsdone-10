@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // Вспомогательные функции
 require_once "./helpers.php";
 // Собственные Функции
@@ -18,7 +20,6 @@ $tasks = [];
 $project_id = null;
 // Проект пользователя по id
 $project = null;
-// Юзер id
-$user_id = 1;
 // Массив для хранения ошибок валидации
 $errors = [];
+

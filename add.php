@@ -1,13 +1,15 @@
 <?php
 // Входные данные
 require_once "./init.php";
-// Вспомогательные функции
+// Боковые проекты
 require_once "./aside_projects.php";
 
-// Нужно будет прикрутить здесь аутентификацию пользователя в следующем задании
-
+if (!isset($_SESSION["id"])) {
+    header("Location: /");
+    exit();
+}
 // Получаем список всех проектов для селекта в форме
-$all_projects = get_all_projects($connection_db);
+$all_projects = get_user_projects($_SESSION["id"], $connection_db);
 
 
 // Проверка отправки формы
@@ -84,11 +86,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         // Создаём запрос для добавления задачи в БД
         $sql = "INSERT INTO task ( name, date_creation, deadline, user_id, project_id, complete_status, user_file ) VALUE (? , CURDATE(), ?, ?, ?, 0, ?)";
-        $stmt = db_get_prepare_stmt($connection_db, $sql, [$task["name"], $task["date"], $user_id, $task["project"], $task["file"]]);
+        $stmt = db_get_prepare_stmt($connection_db, $sql, [$task["name"], $task["date"], $_SESSION["id"], $task["project"], $task["file"]]);
         $result = mysqli_stmt_execute($stmt);
 
         if  ($result){
-            header("Location: /");
+            header("Location: /index.php");
             exit();
         } else {
             print_r(mysqli_error($connection_db));

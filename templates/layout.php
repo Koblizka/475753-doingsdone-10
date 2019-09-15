@@ -8,13 +8,16 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/flatpickr.min.css">
 </head>
+<?php $bg_body = !isset($_SESSION) ? "class=\"body-background\"" : "" ?>
+<?php $side_bar = isset($_SESSION) ? "container--with-sidebar" : ""?>
 
-<body>
+<body <?=$bg_body?>>
 <h1 class="visually-hidden">Дела в порядке</h1>
 
 <div class="page-wrapper">
-    <div class="container container--with-sidebar">
-        <header class="main-header">
+    <div class="container <?=$side_bar?>">
+    <?php if (!empty($_SESSION)): ?>    
+    <header class="main-header">
             <a href="/">
                 <img src="img/logo.png" width="153" height="42" alt="Логотип Дела в порядке">
             </a>
@@ -24,9 +27,9 @@
 
                 <div class="main-header__side-item user-menu">
                     <div class="user-menu__data">
-                        <p>Константин</p>
+                        <p><?=$user?></p>
 
-                        <a href="#">Выйти</a>
+                        <a href="/logout.php">Выйти</a>
                     </div>
                 </div>
             </div>
@@ -48,13 +51,16 @@
                 </nav>
 
                 <a class="button button--transparent button--plus content__side-button"
-                   href="pages/form-project.html" target="project_add">Добавить проект</a>
+                   href="add_project.php">Добавить проект</a>
             </section>
 
             <main class="content__main">
             <?=$page?>
             </main>
         </div>
+    <?php else: ?>
+        <?=$page?>
+    <?php endif; ?>
     </div>
 </div>
 
@@ -65,9 +71,9 @@
 
             <p>Веб-приложение для удобного ведения списка дел.</p>
         </div>
-
+        <?php if (!empty($_SESSION)): ?>
         <a class="main-footer__button button button--plus" href="add.php">Добавить задачу</a>
-
+        <?php endif; ?>
         <div class="main-footer__social social">
             <span class="visually-hidden">Мы в соцсетях:</span>
             <a class="social__link social__link--facebook" href="#">

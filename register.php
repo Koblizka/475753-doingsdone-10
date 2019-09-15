@@ -1,5 +1,7 @@
 <?php
+// Входные данные
 require_once "./init.php";
+// Пользовательские функции
 require_once "./functions.php";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST"){
@@ -48,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST"){
         $result = mysqli_stmt_execute($stmt);
         // Если всё ок, то редиректим на главную
         if  ($result){
-            header("Location: /");
+            header("Location: /index.php");
             exit();
         } else {
             print_r(mysqli_error($connection_db));
@@ -61,7 +63,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST"){
 $page = include_template("register.php", [
     "errors" => $errors
 ]);
-
 
 // Собирает вёрстку
 print($page);
