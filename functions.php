@@ -119,43 +119,49 @@ function get_user_projects_by_id(int $user_id, int $project_id, mysqli $connecti
 }
 
 /**
- * Выводит все существующие задания
+ * Выводит все существующие задания пользователя. 
+ *
+ * При указании $project_id задания только этого проекта. 
+ * При указании $filter добавляется фильтр по датам
  *
  * @param  mysqli $connection_db Подключаемс к ДБ
+ * @param int $user_id
+ * @param int $project_id
+ * @param string $filter
  *
  * @return arr Список задач
  */
-function get_all_user_tasks(int $user_id, mysqli $connection_db)
+function get_all_user_tasks(mysqli $connection_db, int $user_id, int $project_id = null, string $filter = null)
 {
     // Получаем списк задач
-    $sql = "SELECT name AS task_name, deadline AS complete_date, complete_status AS is_completed, project_id AS category, user_file AS file
+    $sql = "SELECT name AS task_name, id AS task_id, deadline AS complete_date, complete_status AS is_completed, project_id AS category, user_file AS file
             FROM task WHERE user_id = '$user_id'";
 
+    // Если задан id проекта, то добавляем в запрос
+    if (isset($project_id)) {
+        $sql .= " AND project_id = '$project_id'";
+    }
+
+    // Если задан фильтр, то добавляем в запрос
+    if (isset($filter)) {
+
+        switch ($filter) {
+            case "today":
+                $sql .= " AND deadline = CURDATE()";
+                break;
+            case "tomorrow":
+                $sql .= " AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) = deadline";
+                break;
+            case "expired":
+                $sql .= " AND CURDATE() > deadline";
+                break;
+            default:
+                $sql .= "";
+        }
+    }
+
     // Проверка на корректность запроса
     $result = mysqli_query($connection_db, $sql) ?: [];
-
-    return mysqli_fetch_all($result, MYSQLI_ASSOC);
-}
-
-/**
- * Выводит спсок задач по id проекта
- *
- * @param  int $project_id Проекта id
- * @param  mysqli $connection_db Подключаемся к ДБ
- *
- * @return arr Список задач по id проекта
- */
-function get_user_tasks_by_project_id(int $user_id, int $project_id, mysqli $connection_db)
-{
-    // Получаем списк задач
-    $sql = "SELECT t.name AS task_name, t.deadline AS complete_date, t.complete_status AS is_completed, t.project_id AS category, t.user_file AS file
-            FROM task t
-            JOIN user u
-            ON u.id = t.user_id WHERE t.user_id = $user_id && t.project_id = $project_id";
-
-    // Проверка на корректность запроса
-    $result = mysqli_query($connection_db, $sql) ?: [];
-
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }

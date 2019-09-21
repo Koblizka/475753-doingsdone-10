@@ -22,9 +22,9 @@ if (isset($_SESSION["id"])) {
         }
     
         // Получаем список задач для конкретного проекта
-        $tasks = get_user_tasks_by_project_id($_SESSION["id"], $project_id, $connection_db);
+        $tasks = get_all_user_tasks($connection_db, $_SESSION["id"], $project_id);
     } else {
-        $tasks = get_all_user_tasks($_SESSION["id"], $connection_db); // Получаем список всех задач
+        $tasks = get_all_user_tasks($connection_db, $_SESSION["id"]); // Получаем список всех задач
     }
 }
 

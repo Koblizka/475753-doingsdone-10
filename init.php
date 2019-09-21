@@ -9,7 +9,7 @@ require_once "./functions.php";
 require_once "./data_base/connection_db.php";
 
 // показывать или нет выполненные задачи
-$show_complete_tasks = rand(0, 1);
+$show_complete_tasks = 0;
 // секунд в сутках
 const SEC_IN_A_DAY = 86400;
 // список проектов
@@ -22,4 +22,6 @@ $project_id = null;
 $project = null;
 // Массив для хранения ошибок валидации
 $errors = [];
+// Фильтр по датам задач
+$filter = null;
 
