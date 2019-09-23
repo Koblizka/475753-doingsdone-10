@@ -1,4 +1,20 @@
 <?php
+
+/**
+ * Возвращает ответ на запрос в виде массива 
+ *
+ * @param  string $sql Запрос
+ * @param  mysqli $connection_db Подключение к ДБ
+ *
+ * @return array Ответ на запрос
+ */
+function get_query_result(string $sql, mysqli $connection_db) 
+{
+    $result = mysqli_query($connection_db, $sql);
+
+    return mysqli_fetch_assoc($result);
+}
+
 /**
  * Считает количтесвто заданий в категории
  *
@@ -53,25 +69,6 @@ function get_date($task)
 }
 
 /**
- * Получаем список всех проектов
- *
- * @param  mysqli $connection_db Подключение к БД
- *
- * @return arr Ассоциативный массив с проектами или пустой массив
- */
-function get_all_projects(mysqli $connection_db)
-{
-    // Формируем запрос на список всех проектов сортированный по id 
-    $sql = "SELECT name AS project, id FROM project
-            ORDER BY id ASC";
-
-    // Проверка на корректность запроса
-    $result = mysqli_query($connection_db, $sql) ?: [];
-    
-    return mysqli_fetch_all($result, MYSQLI_ASSOC);
-}
-
-/**
  * Возвращает список проектов из базы данных в виде ассоциативного массива
  *
  * @param  int $user_id
@@ -85,7 +82,7 @@ function get_user_projects(int $user_id, mysqli $connection_db)
     $sql = "SELECT p.name AS project, p.id, COUNT(t.id) task_count
     FROM project p
     LEFT JOIN task t
-    ON t.project_id = p.id WHERE p.user_id = $user_id
+    ON t.project_id = p.id WHERE p.user_id = '$user_id'
     GROUP BY p.name, p.id ORDER BY task_count DESC";
 
     // Запрос на список проектов
@@ -110,7 +107,7 @@ function get_user_projects_by_id(int $user_id, int $project_id, mysqli $connecti
     $sql = "SELECT p.name AS project, p.id, COUNT(t.id) task_count
     FROM project p
     LEFT JOIN task t
-    ON t.project_id = p.id WHERE p.user_id = $user_id && p.id = $project_id
+    ON t.project_id = p.id WHERE p.user_id = '$user_id' && p.id = '$project_id'
     GROUP BY p.name, p.id ORDER BY task_count DESC";
 
     // Запрос на список проектов
@@ -122,43 +119,49 @@ function get_user_projects_by_id(int $user_id, int $project_id, mysqli $connecti
 }
 
 /**
- * Выводит все существующие задания
+ * Выводит все существующие задания пользователя. 
+ *
+ * При указании $project_id задания только этого проекта. 
+ * При указании $filter добавляется фильтр по датам
  *
  * @param  mysqli $connection_db Подключаемс к ДБ
+ * @param int $user_id
+ * @param int $project_id
+ * @param string $filter
  *
  * @return arr Список задач
  */
-function get_all_tasks(mysqli $connection_db)
+function get_all_user_tasks(mysqli $connection_db, int $user_id, int $project_id = null, string $filter = null)
 {
     // Получаем списк задач
-    $sql = "SELECT name AS task_name, deadline AS complete_date, complete_status AS is_completed, project_id AS category, user_file AS file
-            FROM task";
+    $sql = "SELECT name AS task_name, id AS task_id, deadline AS complete_date, complete_status AS is_completed, project_id AS category, user_file AS file
+            FROM task WHERE user_id = '$user_id'";
+
+    // Если задан id проекта, то добавляем в запрос
+    if (isset($project_id)) {
+        $sql .= " AND project_id = '$project_id'";
+    }
+
+    // Если задан фильтр, то добавляем в запрос
+    if (isset($filter)) {
+
+        switch ($filter) {
+            case "today":
+                $sql .= " AND deadline = CURDATE()";
+                break;
+            case "tomorrow":
+                $sql .= " AND DATE_ADD(CURDATE(), INTERVAL 1 DAY) = deadline";
+                break;
+            case "expired":
+                $sql .= " AND CURDATE() > deadline";
+                break;
+            default:
+                $sql .= "";
+        }
+    }
 
     // Проверка на корректность запроса
     $result = mysqli_query($connection_db, $sql) ?: [];
-
-    return mysqli_fetch_all($result, MYSQLI_ASSOC);
-}
-
-/**
- * Выводит спсок задач по id проекта
- *
- * @param  int $project_id Проекта id
- * @param  mysqli $connection_db Подключаемся к ДБ
- *
- * @return arr Список задач по id проекта
- */
-function get_user_tasks_by_project_id(int $user_id, int $project_id, mysqli $connection_db)
-{
-    // Получаем списк задач
-    $sql = "SELECT t.name AS task_name, t.deadline AS complete_date, t.complete_status AS is_completed, t.project_id AS category, t.user_file AS file
-            FROM task t
-            JOIN user u
-            ON u.id = t.user_id WHERE t.user_id = $user_id && t.project_id = $project_id";
-
-    // Проверка на корректность запроса
-    $result = mysqli_query($connection_db, $sql) ?: [];
-
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
@@ -252,12 +255,14 @@ function validate_date(string $date)
  *
  * @return string|null Текст ошибки или null если всё ок
  */
-function validate_email(string $email, mysqli $connection_db)
+function validate_email(string $email, mysqli $connection_db = null)
 {
-
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (empty($email)) {
+        return "Введите имейл";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return "Имейл указан не верно";
-    } else {
+    } elseif (isset($connection_db)) { // Условия для аутентификации
+
         $email = mysqli_real_escape_string($connection_db, $email);
         $sql = "SELECT id FROM user WHERE email = '$email'";
         $result = mysqli_query($connection_db, $sql);
@@ -278,18 +283,19 @@ function validate_email(string $email, mysqli $connection_db)
  *
  * @return string|null Текст ошибки или всё ок null
  */
-function validate_login(string $login, mysqli $connection_db)
+function validate_login(string $login, mysqli $connection_db = null)
 {
 
     if (empty($login)) {
         return "Это поле должно быть заполнено";
     } elseif (strlen($login) >= 20) {
         return "Слишком длинное имя";
-    } else {
+    } elseif ($connection_db) {
+
         $login = mysqli_real_escape_string($connection_db, $login);
         $sql = "SELECT id FROM user WHERE name = '$login'";
         $result = mysqli_query($connection_db, $sql);
-    
+
         if (mysqli_num_rows($result) > 0) {
             return "Такой пользователь уже зарегистрирован";
         }
@@ -299,18 +305,29 @@ function validate_login(string $login, mysqli $connection_db)
 }
 
 /**
- * Валидация пароля. Не менее 6 символов
+ * Валидация пароля. Также при указании необязетльных аргументов работает как аутентификатор. Не менее 6 символов
  *
  * @param  string $password
+ * @param  string $emal Треубется для аутенитицикации
+ * @param  mysqli $connection_db Треубется для аутенитицикации
  *
  * @return string|null Текст ошибки или всё ок null
  */
-function validate_password(string $password)
+function validate_password(string $password, string $email = null, mysqli $connection_db = null)
 {
     if (empty($password)) {
         return "Необходимо ввести пароль";
     } elseif (strlen($password) < 6) {
         return "Слишком короткий пароль";
+    } elseif (isset($connection_db) && isset($email)) {
+
+        $sql = "SELECT password FROM user WHERE email = '$email'";
+        $result = mysqli_query($connection_db, $sql);
+        $pswd = mysqli_fetch_assoc($result);
+
+        if (!password_verify($password, $pswd["password"])) {
+            return "Пароль или имейл введён не верно";
+        }
     }
 
     return null;

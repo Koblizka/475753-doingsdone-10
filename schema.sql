@@ -36,3 +36,5 @@ CREATE INDEX d_complete ON task( deadline );
 CREATE INDEX t_name ON task( name );
 
 CREATE INDEX p_name ON project( name );
+
+CREATE FULLTEXT INDEX search ON task (name);

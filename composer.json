@@ -1,0 +1,8 @@
+{
+    "name": "ninja_cat/doingsdone-10",
+    "description": "doing",
+    "type": "project",
+    "require": {
+        "swiftmailer/swiftmailer": "^6.2"
+    }
+}
