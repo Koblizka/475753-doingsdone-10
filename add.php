@@ -110,7 +110,7 @@ $page_layout = include_template("layout.php", [
     "projects" => $projects,
     "active_project" => (int)$project["id"],
     "page" => $page,
-    "user" => "Quokka",
+    "user" => $_SESSION["name"],
     "title" => "Дела в порядке"
 ]);
 
