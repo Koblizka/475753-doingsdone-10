@@ -16,7 +16,7 @@ $mailer = new Swift_Mailer($transport);
 $sql = "SELECT u.id, u.name, u.email FROM task t JOIN user u ON t.user_id = u.id WHERE complete_status = 0 AND deadline = CURDATE() GROUP BY u.id";
 $result = mysqli_query($connection_db, $sql);
 $users_with_curr_day_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
-var_dump($users_with_curr_day_tasks);
+
 // Если пользователи с дедлайном есть, то шлём им письма
 if (!empty($users_with_curr_day_tasks)) {
     // Перебираем всех пользователей

@@ -30,7 +30,7 @@
         <td class="task__select">
             <label class="checkbox task__checkbox">
                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="<?=$task_data["task_id"]?>" <?= $task_data["is_completed"] === "1" ? "checked" : "" ?>>
-                <span class="checkbox__text"><?=htmlspecialchars($task_data["task_name"])?><?=var_dump($task_data)?></span>
+                <span class="checkbox__text"><?=htmlspecialchars($task_data["task_name"])?></span>
             </label>
         </td>
         <td class="task__file">
