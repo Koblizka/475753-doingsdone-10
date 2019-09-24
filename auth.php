@@ -36,7 +36,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST"){
         ]);
     } else {
         // Создаём запрос сессию для пользователя
-        $sql = "SELECT * FROM user WHERE email = '{$_POST["email"]}'";
+        $email = mysqli_real_escape_string($connection_db, $_POST["email"]);
+        
+        $sql = "SELECT * FROM user WHERE email = '$email'";
         $user = get_query_result($sql, $connection_db);
 
         // Записываем данные из запроса в сессию

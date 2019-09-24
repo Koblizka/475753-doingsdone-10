@@ -85,8 +85,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ]);
     } else {
         // Создаём запрос для добавления задачи в БД
+        $task_project = mysqli_real_escape_string($connection_db, $task["project"]);
+        $task_name = mysqli_real_escape_string($connection_db, $task["name"]);
+
         $sql = "INSERT INTO task ( name, date_creation, deadline, user_id, project_id, complete_status, user_file ) VALUE (? , CURDATE(), ?, ?, ?, 0, ?)";
-        $stmt = db_get_prepare_stmt($connection_db, $sql, [$task["name"], $task["date"], $_SESSION["id"], $task["project"], $task["file"]]);
+        $stmt = db_get_prepare_stmt($connection_db, $sql, [$task_name, $task["date"], $_SESSION["id"], $task_project, $task["file"]]);
         $result = mysqli_stmt_execute($stmt);
 
         if  ($result){

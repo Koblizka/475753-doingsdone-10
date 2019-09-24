@@ -13,7 +13,7 @@
         <?php $error = isset($errors["project"]) ? "form__input--error" : "";?>
         <select class="form__input form__input--select <?=$error;?>" name="project" id="project" value="<?=get_post_val("project");?>">
             <?php foreach($all_projects as $project): ?>
-                <option value="<?=$project["id"];?>" <?=get_post_val("project") === $project["id"] ? "selected" : "";?>><?=$project["project"]?></option>
+                <option value="<?=$project["id"];?>" <?=get_post_val("project") === $project["id"] ? "selected" : "";?>><?=htmlspecialchars($project["project"])?></option>
             <?php endforeach; ?>
         </select>
         <div class="form__message"><?=$errors["project"] ?? "";?></div>

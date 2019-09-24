@@ -16,7 +16,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         // Проверка на существование проекта в БД
         $project = mysqli_real_escape_string($connection_db, $_POST["name"]);
-        $sql = "SELECT * FROM project WHERE name = '$project' AND user_id = '{$_SESSION["id"]}'";
+        $user_id = (int)$_SESSION["id"];
+
+        $sql = "SELECT * FROM project WHERE name = '$project' AND user_id = '$user_id'";
         $result = mysqli_query($connection_db, $sql);
 
         if (mysqli_num_rows($result) > 0) {
@@ -24,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
             // Если проекта такого не существует, то создаём его
             $sql = "INSERT INTO project (name, user_id) VALUES (?, ?)";
-            $stmt = db_get_prepare_stmt($connection_db, $sql, [$_POST["name"], $_SESSION["id"]]);
+            $stmt = db_get_prepare_stmt($connection_db, $sql, [$_POST["name"], $user_id]);
             $result = mysqli_stmt_execute($stmt);
             // Если всё ок, то переадресовываем пользователя на главную
             if ($result) {

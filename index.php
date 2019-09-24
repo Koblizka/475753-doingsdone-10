@@ -20,8 +20,10 @@ if (!empty($_SESSION)) {
     if (isset($_GET["search"]) && !empty($_GET["search"])) {
         // Подготавливаем хапрос на поиск
         $search = mysqli_real_escape_string($connection_db, trim($_GET["search"]));
+        $user_id = (int)$_SESSION["id"];
+
         $sql = "SELECT name AS task_name, id AS task_id, deadline AS complete_date, complete_status AS is_completed, project_id AS category, user_file AS file
-                FROM task WHERE MATCH(name) AGAINST('$search') AND user_id = '{$_SESSION["id"]}'";
+                FROM task WHERE MATCH(name) AGAINST('$search') AND user_id = '$user_id'";
         // Условие на завершённость задачи
         if ($show_complete_tasks == 0) {
             $sql .= " AND complete_status = 0";

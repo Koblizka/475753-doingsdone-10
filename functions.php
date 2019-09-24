@@ -10,6 +10,7 @@
  */
 function get_query_result(string $sql, mysqli $connection_db) 
 {
+    // $sql = mysqli_real_escape_string($connection_db, $sql);
     $result = mysqli_query($connection_db, $sql);
 
     return mysqli_fetch_assoc($result);
@@ -262,8 +263,8 @@ function validate_email(string $email, mysqli $connection_db = null)
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return "Имейл указан не верно";
     } elseif (isset($connection_db)) { // Условия для аутентификации
-
         $email = mysqli_real_escape_string($connection_db, $email);
+
         $sql = "SELECT id FROM user WHERE email = '$email'";
         $result = mysqli_query($connection_db, $sql);
     
@@ -291,8 +292,8 @@ function validate_login(string $login, mysqli $connection_db = null)
     } elseif (strlen($login) >= 20) {
         return "Слишком длинное имя";
     } elseif ($connection_db) {
-
         $login = mysqli_real_escape_string($connection_db, $login);
+
         $sql = "SELECT id FROM user WHERE name = '$login'";
         $result = mysqli_query($connection_db, $sql);
 
@@ -320,6 +321,7 @@ function validate_password(string $password, string $email = null, mysqli $conne
     } elseif (strlen($password) < 6) {
         return "Слишком короткий пароль";
     } elseif (isset($connection_db) && isset($email)) {
+        $email = $email;
 
         $sql = "SELECT password FROM user WHERE email = '$email'";
         $result = mysqli_query($connection_db, $sql);
