@@ -25,7 +25,7 @@ if (!empty($_SESSION)) {
         $sql = "SELECT name AS task_name, id AS task_id, deadline AS complete_date, complete_status AS is_completed, project_id AS category, user_file AS file
                 FROM task WHERE MATCH(name) AGAINST('$search') AND user_id = '$user_id'";
         // Условие на завершённость задачи
-        if ($show_complete_tasks == 0) {
+        if (!$show_complete_tasks) {
             $sql .= " AND complete_status = 0";
         }
         // Выполняем поиск и записываем результат
